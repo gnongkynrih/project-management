@@ -1,53 +1,63 @@
 import React from "react";
 import { User } from "./search-panel";
+import { Table } from "antd";
+import dayjs from "dayjs";
 
 interface Project {
   id: string;
   name: string;
   personId: string;
-  organization: string;
   pin: boolean;
+  organization: string;
+  created: number;
 }
+
 interface ListProps {
   list: Project[];
   users: User[];
 }
-export const List = ({ list, users }: ListProps) => {
+export const List = ({ users, list }: ListProps) => {
   return (
-    <div>
-      <table
-        style={{ border: "1.5px solid rgb(208,200,200", margin: "0 auto" }}
-      >
-        <thead>
-          <tr>
-            <th>Project Name</th>
-            <th>Assignee</th>
-          </tr>
-        </thead>
-        <tbody>
-          {list.map((project) => (
-            <tr key={project.id}>
-              <td
-                style={{
-                  border: "1px solid rgb)190,190,190)",
-                  background: "rgb(238,238,238",
-                }}
-              >
-                {project.name}
-              </td>
-              <td
-                style={{
-                  border: "1px solid rgb)190,190,190)",
-                  background: "rgb(215,217,242",
-                }}
-              >
-                {users.find((user) => user.id === project.personId)?.name ||
-                  "unknown"}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+    <Table
+      pagination={false}
+      columns={[
+        {
+          title: "Name",
+          sorter: (a, b) => a.name.localeCompare(b.name),
+          render(value, project) {
+            return project.name;
+          },
+        },
+        {
+          title: "Team",
+          dataIndex: "organization",
+        },
+        {
+          title: "Assignee",
+          render(value, project) {
+            return (
+              users.find((user) => user.id === project.personId)?.name ||
+              "unknown"
+            );
+          },
+        },
+        {
+          title: "Created date",
+          render(value, project) {
+            return (
+              <span>
+                {project.created
+                  ? dayjs(project.created).format("YYYY-MM-DD")
+                  : "null"}
+              </span>
+            );
+          },
+        },
+      ]}
+      dataSource={list.map((project) => ({
+        ...project,
+        key: project.id,
+      }))}
+    />
   );
 };
